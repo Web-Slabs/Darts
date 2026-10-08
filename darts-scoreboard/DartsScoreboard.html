@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Darts Scoreboard SA</title>
+  <meta name="theme-color" content="#00ff88">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-192.png">
+  <style>
+    :root{--bg:#0a0a0a;--card:#1a1a1a;--border:#333;--text:#f5f5f5;--accent:#00ff88;--red:#ff4444;--gold:#ffd700;--purple:#9c27b0}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;min-height:100vh}
+    body.day-mode{--bg:#f5f5f5;--card:#ffffff;--border:#ddd;--text:#1a1a1a;--accent:#00aa55}
+    header{background:var(--card);padding:1rem;border-bottom:2px solid var(--accent);position:sticky;top:0;z-index:100}
+    header h1{color:var(--accent);text-align:center;margin-bottom:1rem;font-size:2rem}
+    nav{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+    nav button{background:var(--bg);color:var(--text);border:2px solid var(--border);padding:.75rem 1.5rem;border-radius:10px;cursor:pointer;font-size:1rem;transition:all .2s}
+    nav button:hover,nav button.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+    main{max-width:1400px;margin:0 auto;padding:1rem}
+    .screen{display:block}.screen.hidden{display:none}
+    .game-card{background:var(--card);border:2px solid var(--border);border-radius:15px;padding:1.5rem;margin:1rem 0;display:flex;justify-content:space-between;align-items:center;gap:1rem}
+    .game-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;margin:2rem 0}
+    .game-grid button{background:var(--card);border:3px solid var(--accent);color:var(--text);padding:2rem;border-radius:15px;font-size:1.2rem;cursor:pointer;transition:all .2s}
+    .game-grid button:hover{background:var(--accent);color:var(--bg);transform:scale(1.05)}
+    .player-select{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1rem 0}
+    .player-select label{background:var(--card);padding:1rem;border:2px solid var(--border);border-radius:10px;display:flex;align-items:center;gap:.5rem;cursor:pointer}
+    .player-select input:checked+span{color:var(--accent);font-weight:bold}
+    .add-player{display:flex;gap:.5rem;margin:1rem 0}
+    .add-player input{flex:1;padding:.75rem;background:var(--bg);border:2px solid var(--border);color:var(--text);border-radius:10px;font-size:1rem}
+    .add-player button{background:var(--accent);color:var(--bg);border:none;padding:.75rem 1.5rem;border-radius:10px;cursor:pointer;font-weight:bold}
+    .player-card{background:var(--card);border:2px solid var(--border);border-radius:15px;padding:1.5rem;margin:1rem 0;display:flex;justify-content:space-between;align-items:center}
+    .stats-bar{display:flex;gap:1rem;flex-wrap:wrap;margin:1rem 0}
+    .stat-pill{background:var(--card);padding:.5rem 1rem;border-radius:20px;border:1px solid var(--border)}
+    .dartboard-svg{width:100%;max-width:400px;display:block;margin:1rem auto}
+    .chalkboard{background:var(--card);border:3px solid var(--accent);border-radius:15px;padding:2rem;margin:1rem 0}
+    .chalkboard h3{color:var(--accent);text-align:center;font-size:3rem;margin-bottom:1rem}
+    .score-row{display:flex;justify-content:space-between;padding:1rem;margin:.5rem 0;background:var(--bg);border-radius:10px;font-size:1.5rem}
+    .score-row.active{border:3px solid var(--accent);background:rgba(0,255,136,0.1)}
+    .dart-calculator{background:var(--card);border:3px solid var(--accent);border-radius:15px;padding:1.5rem;margin:1rem 0}
+    .dart-slots{display:flex;gap:1rem;justify-content:center;margin:1rem 0}
+    .dart-slot{width:80px;height:80px;border:3px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:var(--bg)}
+    .dart-slot.filled{border-color:var(--accent);background:rgba(0,255,136,0.2)}
+    .total-display{text-align:center;font-size:2rem;color:var(--accent);margin:1rem 0}
+    .dart-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;margin:1rem 0}
+    .dart-btn{background:var(--bg);border:2px solid var(--border);color:var(--text);padding:1rem;border-radius:10px;cursor:pointer;font-size:1.2rem;transition:all .2s}
+    .dart-btn:hover{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+    .dart-btn.double{background:#4a1a1a}.dart-btn.triple{background:#1a3a4a}.dart-btn.bull{background:#4a4a00}
+    .dart-controls{display:flex;gap:.5rem;margin-top:1rem}
+    .dart-controls button{flex:1;padding:1rem;background:var(--accent);color:var(--bg);border:none;border-radius:10px;font-size:1.1rem;cursor:pointer;font-weight:bold}
+    .turn-indicator{text-align:center;font-size:1.5rem;color:var(--accent);margin:1rem 0;padding:1rem;background:var(--card);border-radius:10px}
+    .rules-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:1000}
+    .rules-modal.hidden{display:none}
+    .rules-content{background:var(--card);border:3px solid var(--accent);border-radius:15px;padding:2rem;max-width:600px;max-height:80vh;overflow-y:auto}
+    .rules-content h3{color:var(--accent);margin-bottom:1rem}
+    .rules-content ul{list-style:none;padding:0}
+    .rules-content li{padding:.5rem 0;border-bottom:1px solid var(--border)}
+    .rules-content button{width:100%;margin-top:1rem;padding:1rem;background:var(--accent);color:var(--bg);border:none;border-radius:10px;cursor:pointer;font-size:1.1rem}
+    .theme-toggle{display:flex;gap:.5rem;justify-content:center;margin:1rem 0}
+    .theme-toggle button{background:var(--card);border:2px solid var(--border);padding:.5rem 1rem;border-radius:10px;cursor:pointer}
+    .theme-toggle button.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+    .checkout-box{background:var(--card);border:3px solid var(--gold);border-radius:15px;padding:1.5rem;margin:1rem 0;text-align:center}
+    .checkout-box h4{color:var(--gold);margin-bottom:.5rem}
+    .checkout-text{font-size:2rem;color:var(--gold);font-weight:bold}
+    .legs-display{display:flex;gap:1rem;justify-content:center;align-items:center;margin:1rem 0}
+    .leg-dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);background:var(--bg)}
+    .leg-dot.won{background:var(--accent);border-color:var(--accent)}
+    .sets-display{text-align:center;font-size:1.2rem;color:var(--gold);margin:1rem 0}
+    .cricket-sa-board{width:100%;border-collapse:collapse;margin:1rem 0;background:var(--card);border-radius:15px;overflow:hidden}
+    .cricket-sa-board th,.cricket-sa-board td{border:1px solid var(--border);padding:.75rem;text-align:center;font-size:1.2rem}
+    .cricket-sa-board th{background:var(--bg);color:var(--accent)}
+    .cricket-sa-board .player-name{font-weight:bold;font-size:1.3rem}
+    .cricket-sa-board .player-name.active{color:var(--accent);background:rgba(0,255,136,0.1)}
+    .cricket-sa-board .board-num{font-weight:bold;color:var(--gold);font-size:1.5rem}
+    .cricket-sa-board .hits{font-family:monospace;letter-spacing:2px}
+    .cricket-sa-board .score{color:var(--gold);font-weight:bold}
+    .cricket-sa-board .open-num{background:rgba(0,255,136,0.2);color:var(--accent);font-weight:bold}
+    .cricket-sa-board .dt-btn{background:var(--bg);border:2px solid var(--border);padding:.5rem;cursor:pointer;border-radius:5px}
+    .cricket-sa-board .dt-btn.double{color:var(--red)}.cricket-sa-board .dt-btn.triple{color:#00aaff}
+    .cricket-sa-board .dt-btn:hover{background:var(--accent);color:var(--bg)}
+    .cricket-sa-board .empty-cell{background:var(--bg);opacity:0.3}
+    .cricket-sa-board .total-row{background:var(--bg);font-weight:bold;font-size:1.3rem}
+    .cricket-sa-board .total-score{color:var(--gold);font-size:1.5rem}
+    .cricket-sa-board .lead-text{color:var(--accent)}
+    .cricket-sa-board .diff-cell{color:var(--red)}
+    .rules-btn{position:fixed;top:80px;right:20px;background:var(--card);border:2px solid var(--accent);color:var(--accent);padding:.75rem 1.5rem;border-radius:10px;cursor:pointer;z-index:50;font-size:1rem}
+    .rules-btn:hover{background:var(--accent);color:var(--bg)}
+    .x01-setup{background:var(--card);border:3px solid var(--accent);border-radius:15px;padding:2rem;margin:1rem 0;text-align:center}
+    .match-setup{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:2rem 0}
+    .match-setup label{display:flex;flex-direction:column;gap:.5rem;text-align:left}
+    .match-setup select,.match-setup input{padding:.75rem;background:var(--bg);border:2px solid var(--border);color:var(--text);border-radius:10px;font-size:1rem}
+    .game-controls{display:flex;gap:.5rem;flex-wrap:wrap;margin:1rem 0}
+    .game-controls button{flex:1;min-width:150px;padding:.75rem;background:var(--card);border:2px solid var(--border);color:var(--text);border-radius:10px;cursor:pointer}
+    .game-controls button:hover{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+    body.chalker .dart-calculator{display:none}
+    body.big-buttons .dart-btn{padding:1.5rem;font-size:1.5rem}
+    body.kiosk-mode nav,body.kiosk-mode header h1{display:none}
+    #install-btn{background:var(--accent);color:var(--bg);border:none;padding:1rem 2rem;border-radius:10px;font-size:1.1rem;cursor:pointer;font-weight:bold;margin:1rem auto;display:none}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎯 DARTS SCOREBOARD SA</h1>
+    <nav>
+      <button onclick="showScreen('home')" id="nav-home" class="active">Home</button>
+      <button onclick="showScreen('players')" id="nav-players">Players</button>
+      <button onclick="showScreen('games')" id="nav-games">Games</button>
+      <button onclick="showScreen('history')" id="nav-history">History</button>
+    </nav>
+  </header>
+  <main>
+    <div id="home-screen" class="screen">
+      <div id="theme-container"></div>
+      <button id="install-btn" onclick="installPWA()">📱 Install App to Desktop</button>
+      <h2>Welcome to Darts SA</h2>
+      <div class="stats-bar" id="home-stats"></div>
+      <div class="game-card">
+        <h3 style="color:var(--accent);margin-top:0">Quick Select Players</h3>
+        <div id="home-player-select" class="player-select"></div>
+        <small style="color:var(--text);opacity:.7">Tick players before starting a game</small>
+      </div>
+      <div class="game-grid">
+        <button onclick="startX01Setup()">X01 Match</button>
+        <button onclick="startGame('cricket')">Cricket SA</button>
+        <button onclick="startCricket2v2()">Doubles Cricket</button>
+        <button onclick="startGame('clock')">Clock</button>
+        <button onclick="startGame('killer')">Killer</button>
+        <button onclick="startGame('shanghai')">Shanghai</button>
+        <button onclick="startGame('baseball')">Baseball</button>
+        <button onclick="startGame('halveit')">Halve It</button>
+        <button onclick="startGame('bobs27')">Bob's 27</button>
+        <button onclick="startTournament()" style="background:var(--purple);border-color:var(--purple)">🏆 Tournament</button>
+      </div>
+    </div>
+    <div id="players-screen" class="screen hidden">
+      <h2>Players</h2>
+      <div class="add-player">
+        <input type="text" id="new-player-name" placeholder="Player name" maxlength="20">
+        <button onclick="addPlayer()">+ Add Player</button>
+      </div>
+      <div id="player-list"></div>
+    </div>
+    <div id="games-screen" class="screen hidden">
+      <h2>Select Game & Players</h2>
+      <div id="player-select" class="player-select"></div>
+      <div class="game-grid">
+        <button onclick="startX01Setup()">X01 - 101 to 1001</button>
+        <button onclick="startGame('cricket')">Cricket SA</button>
+        <button onclick="startCricket2v2()">Doubles Cricket 2v2</button>
+        <button onclick="startGame('clock')">Around the Clock</button>
+        <button onclick="startGame('killer')">Killer</button>
+        <button onclick="startGame('shanghai')">Shanghai</button>
+        <button onclick="startGame('baseball')">Baseball</button>
+        <button onclick="startGame('halveit')">Halve It</button>
+        <button onclick="startGame('bobs27')">Bob's 27</button>
+        <button onclick="startTournament()" style="background:var(--purple);border-color:var(--purple)">🏆 Tournament Mode</button>
+      </div>
+    </div>
+    <div id="game-screen" class="screen hidden"><div id="game-board"></div></div>
+    <div id="history-screen" class="screen hidden">
+      <h2>Match History</h2>
+      <div class="game-controls">
+        <button onclick="exportHistoryCSV()">📊 Export All CSV</button>
+        <button onclick="clearHistory()" style="background:var(--red)">Clear History</button>
+      </div>
+      <div id="history-list"></div>
+    </div>
+  </main>
+  <div id="profile-modal" class="rules-modal hidden">
+    <div class="rules-content" style="max-width:700px">
+      <div id="profile-content"></div>
+      <button onclick="closeProfile()">Close</button>
+    </div>
+  </div>
+<script>
+// PASTE ENTIRE v1.13 JS HERE - Due to length, use the js/games.js code from previous message
+// Add this at the top of the script section:
+
+// PWA INSTALL
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',(e)=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  document.getElementById('install-btn').style.display='block';
+});
+function installPWA(){
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('install-btn').style.display='none';});
+  }
+}
+// Service Worker
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js');
+}
+
+// REST OF YOUR JS CODE FROM v1.13 GOES HERE
+// Copy everything from "let currentGame = null;" onwards from the previous js/games.js file
+</script>
+</body>
+</html>

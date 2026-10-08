@@ -1,0 +1,49 @@
+name: Release
+
+# On a version tag: build the web bundle and attach it as a downloadable
+# release asset (plus artifacts on the workflow run). EXE/APK stay on the
+# personal server — they need the vendored toolchain + signing keys.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  web-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck & test
+        run: |
+          npx tsc --noEmit
+          npx vitest run
+
+      - name: Build web bundle
+        run: npx vite build
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bullseye-web-${{ github.ref_name }}
+          path: dist/
+
+      - name: Create GitHub Release with the bundle
+        uses: softprops/action-gh-release@v3
+        with:
+          files: dist/**
+          generate_release_notes: true
+          fail_on_unmatched_files: true

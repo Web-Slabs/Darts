@@ -1,0 +1,11 @@
+export * from './board'
+export * from './core'
+export * from './registry'
+export * from './bot'
+export * from './games/x01'
+export * from './games/killer'
+export * from './games/sa-killer'
+export * from './games/more'
+export * from './games/extra'
+import * as Cricket from './games/cricket'
+export const CricketGame = Cricket

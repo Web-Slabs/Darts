@@ -1,0 +1,7 @@
+# Normalize line endings: LF everywhere (so Windows-local builds produce the
+# exact same bytes as the Linux CI runner — no more bundle-hash drift).
+* text=auto eol=lf
+
+# Windows batch files genuinely need CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf

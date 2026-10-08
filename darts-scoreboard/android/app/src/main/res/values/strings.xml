@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Bullseye Darts</string>
+    <string name="title_activity_main">Bullseye Darts</string>
+    <string name="package_name">co.za.webslabs.bullseye</string>
+    <string name="custom_url_scheme">co.za.webslabs.bullseye</string>
+</resources>

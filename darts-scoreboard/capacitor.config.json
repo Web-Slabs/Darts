@@ -1,0 +1,11 @@
+{
+  "appId": "co.za.webslabs.bullseye",
+  "appName": "Bullseye Darts",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": false
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}

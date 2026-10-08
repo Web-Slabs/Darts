@@ -15,3 +15,14 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+## Bullseye Darts Scoreboard
+
+A production darts scoreboard app is included under
+[`darts-scoreboard/`](darts-scoreboard/README.md): a single TypeScript codebase
+that builds a website, a Windows desktop installer, and an Android APK from one
+codebase, with 46 games, SA Killer house rules, Supabase cloud sync, and a
+VBA-parity test suite. Built for Web-Slabs.
+
+See [`darts-scoreboard/DEPLOYMENT.md`](darts-scoreboard/DEPLOYMENT.md) for the
+web + Windows + Android shipping notes.
